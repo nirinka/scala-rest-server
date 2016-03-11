@@ -3,7 +3,7 @@ package org.library.rest
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import org.library.db.DocumentStore
-import org.library.rest.LibraryResponse.Success
+import org.library.rest.LibraryResponse.{AllDocumentsResponse, Success}
 import spray.httpx.SprayJsonSupport
 import spray.routing.SimpleRoutingApp
 
@@ -21,7 +21,7 @@ class LibraryServer(port : Int, host : String) extends SimpleRoutingApp with Spr
     logRequestResponse("libraryservice") {
       path("document") {
         get {
-          complete(Success("Successful GET"))
+          complete(AllDocumentsResponse(documentStore.getAll))
         }~
         post {
           complete(Success("Successful POST"))

@@ -53,7 +53,7 @@ object DocumentStore{
 
   def save(document : Document) = documentStore.save(document)
 
-  def getAll(id : String) : Seq[Document] = documentStore.getAll
+  def getAll : Seq[Document] = documentStore.getAll
 
 
 }
