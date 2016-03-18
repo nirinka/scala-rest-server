@@ -15,7 +15,8 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-testkit" % "1.3.3",
   "com.typesafe" % "config" % "1.2.1",
   "com.ibm" %% "couchdb-scala" % "0.7.0",
-  "org.scalatest" %% "scalatest" % "2.2.6" % "test"
+  "org.scalatest" %% "scalatest" % "2.2.6" % "test",
+  "org.mockito" % "mockito-all" % "1.8.4"
 )
 
 testOptions in Test ++= Seq(

@@ -2,15 +2,15 @@ package org.library.rest
 
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
+import org.library.{EmptyId, ValidId}
 import org.library.db.DocumentStore
-import org.library.rest.LibraryResponse.{AllDocumentsResponse, Success}
+import org.library.rest.LibraryResponse._
+import spray.http.StatusCodes
 import spray.httpx.SprayJsonSupport
 import spray.routing.SimpleRoutingApp
 
-class LibraryServer(port : Int, host : String) extends SimpleRoutingApp with SprayJsonSupport {
+class LibraryServer(port : Int, host : String, documentStore: DocumentStore) extends SimpleRoutingApp with SprayJsonSupport {
   implicit val actorSystem = ActorSystem("library-service")
-
-  val documentStore = DocumentStore
 
   def start(): Unit = {
     startServer(host, port)(routes())
@@ -23,8 +23,12 @@ class LibraryServer(port : Int, host : String) extends SimpleRoutingApp with Spr
         get {
           complete(AllDocumentsResponse(documentStore.getAll))
         }~
-        post {
-          complete(Success("Successful POST"))
+          (post & entity(as[AddDocumentRequest])) { addDocumentRequest => {
+            documentStore.save(addDocumentRequest.document) match {
+              case ValidId(documentId) => complete(AddDocumentSuccess(documentId))
+              case EmptyId(message) => complete{StatusCodes.BadRequest -> AddDocumentFailed(message)}
+            }
+          }
         }
       }
     }
@@ -35,6 +39,7 @@ class LibraryServer(port : Int, host : String) extends SimpleRoutingApp with Spr
 object LibraryServer extends SimpleRoutingApp{
 
   var server : LibraryServer = null
+  val documentStore = DocumentStore
 
   def main(args: Array[String]): Unit = {
     val config = ConfigFactory.load()
@@ -42,7 +47,7 @@ object LibraryServer extends SimpleRoutingApp{
     val port = config.getInt("libraryService.port")
     val host = config.getString("libraryService.host")
 
-    server = new LibraryServer(port, host)
+    server = new LibraryServer(port, host, documentStore.documentStore)
     server.start()
   }
 

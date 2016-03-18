@@ -2,14 +2,12 @@ package org.library.db
 
 import com.ibm.couchdb._
 import com.typesafe.config.ConfigFactory
-import org.library.Document
+import org.library.{ValidId, EmptyId, DocumentId, Document}
 import scalaz._
 
 class DocumentStore(dbPort : Int, dbHost : String, dbName : String) {
 
   val typeMapping = TypeMapping(classOf[Document] -> "Document")
-
-  val comment = Document("Good Comment", "Comment", Set("good", "comment"), "This is a good comment indeed")
 
   // Create a CouchDB client instance
   val couch = CouchDb(dbHost, dbPort)
@@ -17,27 +15,24 @@ class DocumentStore(dbPort : Int, dbHost : String, dbName : String) {
   // Get an instance of the DB API by name and type mapping
   val db = couch.db(dbName, typeMapping)
 
-  def save(document: Document) = {
+  def save(document: Document) : DocumentId = {
     val action = db.docs.create(document)
     action.attemptRun match {
       // In case of an error (left side of Either), print it
-      case -\/(e) => println(e)
+      case -\/(e) => EmptyId(e.getMessage)
       // In case of a success (right side of Either), print each object
-      case \/-(a) => println(a)
+      case \/-(a) => ValidId(a.id)
     }
   }
 
   def getAll: Seq[Document] = {
-    println("get all")
     val getAction = for {docs <- db.docs.getMany.queryIncludeDocs[Document]} yield docs.getDocsData
     getAction.attemptRun match {
       // In case of an error (left side of Either), print it
-      case -\/(e) => println(e)
+      case -\/(e) => Seq()
       // In case of a success (right side of Either), print each object
-      case \/-(a) => println(a)
+      case \/-(a) => a
     }
-    Seq(comment)
-
   }
 }
 
