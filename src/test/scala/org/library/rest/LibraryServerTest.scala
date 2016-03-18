@@ -1,6 +1,5 @@
 package org.library.rest
 
-import org.http4s.blaze.http.http_parser.BaseExceptions.BadRequest
 import org.library.{EmptyId, ValidId, Document}
 import org.library.db.DocumentStore
 import org.library.rest.LibraryResponse._
@@ -15,7 +14,7 @@ import org.mockito.Mockito
 class LibraryServerTest extends FeatureSpec with GivenWhenThen with ScalatestRouteTest with SprayJsonSupport with MockitoSugar{
   import org.library.rest.Protocols._
 
-  val documentEndpoint = "/document"
+  val documentEndpoint = "/documents"
   val documentStore = mock[DocumentStore]
   val document = Document("Good Comment", "Comment", Set("good", "comment"), "This is a good comment indeed")
 

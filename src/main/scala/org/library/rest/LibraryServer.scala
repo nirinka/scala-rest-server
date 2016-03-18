@@ -19,7 +19,7 @@ class LibraryServer(port : Int, host : String, documentStore: DocumentStore) ext
   def routes() = {
     import Protocols._
     logRequestResponse("libraryservice") {
-      path("document") {
+      path("documents") {
         get {
           complete(AllDocumentsResponse(documentStore.getAll))
         }~
